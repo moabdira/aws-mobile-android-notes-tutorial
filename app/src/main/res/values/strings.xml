@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">My Notes</string>
     <string name="title_note_detail">Note Detail</string>
+
+    <string name="facebook_app_id">143003423033019</string>
+    <string name="fb_login_protocol_scheme">fb143003423033019</string>
+
 </resources>

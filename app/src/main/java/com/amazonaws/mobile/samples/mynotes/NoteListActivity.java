@@ -40,6 +40,8 @@ import android.view.ViewGroup;
 import com.amazonaws.mobile.samples.mynotes.data.Note;
 import com.amazonaws.mobile.samples.mynotes.data.NoteViewHolder;
 import com.amazonaws.mobile.samples.mynotes.data.NotesContentContract;
+import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsClient;
+import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
 
 /**
  * An activity representing a list of Notes. This activity
@@ -141,6 +143,17 @@ public class NoteListActivity
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final NoteViewHolder noteHolder = (NoteViewHolder) viewHolder;
                 ((NotesAdapter) notesList.getAdapter()).remove(noteHolder);
+
+                /* We can monitor feature usage within our app. In this case, we will monitor how often
+                users delete notes when swiped. We will record a custom event for each operation. */
+                // Send Custom Event to Amazon Pinpoint
+                final AnalyticsClient mgr = AWSProvider.getInstance()
+                        .getPinpointManager()
+                        .getAnalyticsClient();
+                final AnalyticsEvent event = mgr.createEvent("DeleteNote")
+                        .withAttribute("noteId", noteHolder.getNote().getNoteId());
+                mgr.recordEvent(event);
+                mgr.submitEvents();
             }
 
             @Override

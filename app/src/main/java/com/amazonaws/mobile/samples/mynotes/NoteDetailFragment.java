@@ -26,6 +26,8 @@ import android.widget.EditText;
 
 import com.amazonaws.mobile.samples.mynotes.data.Note;
 import com.amazonaws.mobile.samples.mynotes.data.NotesContentContract;
+import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsClient;
+import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -153,6 +155,16 @@ public class NoteDetailFragment extends Fragment {
                 itemUri = contentResolver.insert(NotesContentContract.Notes.CONTENT_URI, values);
                 isUpdate = true;    // Anything from now on is an update
                 itemUri = NotesContentContract.Notes.uriBuilder(mItem.getNoteId());
+
+                /* We can monitor feature usage within our app. In this case, we will monitor how often
+                users add notes. We will record a custom event for each operation. */
+                // Send Custom Event to Amazon Pinpoint
+                final AnalyticsClient mgr = AWSProvider.getInstance()
+                        .getPinpointManager().getAnalyticsClient();
+                final AnalyticsEvent event = mgr.createEvent("AddNote")
+                        .withAttribute("noteId", mItem.getNoteId());
+                mgr.recordEvent(event);
+                mgr.submitEvents();
             }
         }
     }
